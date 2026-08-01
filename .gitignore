@@ -1,6 +1,5 @@
 semiylst/
 
-# Trained models
-models/*.pkl
+
 
 __pycache__/
