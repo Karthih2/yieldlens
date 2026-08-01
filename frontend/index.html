@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YieldLens — Semiconductor Yield Intelligence</title>
+  <meta name="description" content="YieldLens: Stability-aware sensor reduction for semiconductor yield monitoring. Live ML predictions, SHAP explanations, and sensor stability analysis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">YieldLens</span>
+          <span class="logo-subtitle">FAB ANALYTICS</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="9" y1="3" x2="9" y2="21"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+      <div class="nav-section-label">OVERVIEW</div>
+      <a href="#" class="nav-item active" data-view="dashboard" id="nav-dashboard">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+
+      <div class="nav-section-label">ANALYSIS</div>
+      <a href="#" class="nav-item" data-view="predict" id="nav-predict">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2L3 7v11h14V7L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M7 14l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Yield Predictor</span>
+        <span class="nav-badge">Live</span>
+      </a>
+      <a href="#" class="nav-item" data-view="stability" id="nav-stability">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M2 15l4-6 4 3 4-8 4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Stability Explorer</span>
+      </a>
+
+      <div class="nav-section-label">SYSTEM</div>
+      <div class="api-status-item">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>API Status</span>
+        <span class="status-dot" id="apiStatusDot"></span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">Stability-Aware Sensor Reduction</div>
+      <div class="sidebar-footer-sub">Semiconductor Yield Monitoring</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Top Header Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="topbar-breadcrumb">
+          <span class="breadcrumb-app">YieldLens</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="breadcrumb-current" id="breadcrumbCurrent">Dashboard</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <div class="topbar-api-status">
+          <span class="status-dot" id="topbarStatusDot"></span>
+          <span id="topbarStatusText">Connecting…</span>
+        </div>
+        <div class="topbar-time" id="topbarTime"></div>
+      </div>
+    </header>
+
+    <!-- ============== DASHBOARD VIEW ============== -->
+    <section class="view active" id="view-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">System Dashboard</h1>
+          <p class="page-subtitle">Real-time overview of sensor stability, model performance, and yield intelligence</p>
+        </div>
+        <button class="btn btn-primary" id="dashboardRefresh">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.5 4.5V8H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Refresh Data
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" id="statTotalSensors">
+          <div class="stat-label">Total Sensors</div>
+          <div class="stat-value" id="statTotalVal">—</div>
+          <div class="stat-delta neutral">Full sensor space</div>
+        </div>
+        <div class="stat-card" id="statShortlisted">
+          <div class="stat-label">Shortlisted Sensors</div>
+          <div class="stat-value" id="statShortlistVal">—</div>
+          <div class="stat-delta positive" id="statShortlistPct">Selected for model</div>
+        </div>
+        <div class="stat-card" id="statTopSensor">
+          <div class="stat-label">Top Sensor (SHAP)</div>
+          <div class="stat-value mono" id="statTopSensorVal">—</div>
+          <div class="stat-delta neutral" id="statTopSensorScore">Highest avg importance</div>
+        </div>
+        <div class="stat-card" id="statHighStability">
+          <div class="stat-label">High Stability Sensors</div>
+          <div class="stat-value" id="statHighStabVal">—</div>
+          <div class="stat-delta neutral">Stability score ≥ 0.2</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+        <div class="card chart-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Top 10 Sensors by Importance</h2>
+              <p class="card-subtitle">Average SHAP importance across shortlisted sensors</p>
+            </div>
+            <div class="legend-row">
+              <span class="legend-dot green"></span><span class="legend-text">Shortlisted</span>
+              <span class="legend-dot gray"></span><span class="legend-text">Not shortlisted</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="importanceChart"></canvas>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Stability vs Importance</h2>
+              <p class="card-subtitle">Only sensors with avg_importance &gt; 0 shown</p>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="scatterChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortlisted Sensors Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Shortlisted Sensors</h2>
+            <p class="card-subtitle">Sensors selected by the stability-aware algorithm for yield prediction</p>
+          </div>
+          <span class="badge badge-green" id="shortlistBadge">Loading…</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="shortlistTable">
+            <thead>
+              <tr>
+                <th>Sensor</th>
+                <th>Stability Score</th>
+                <th>Avg Importance</th>
+                <th>Stability Tier</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="shortlistTableBody">
+              <tr><td colspan="5" class="table-loading">Loading sensor data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== PREDICT VIEW ============== -->
+    <section class="view" id="view-predict">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Yield Predictor</h1>
+          <p class="page-subtitle">Enter sensor readings to predict wafer yield outcome with real-time SHAP explanation</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" id="loadExampleBtn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v6M5 4l3-3 3 3M3 10h10a1 1 0 010 2H3a1 1 0 010-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Load Example
+          </button>
+          <button class="btn btn-ghost" id="clearFormBtn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="predict-layout">
+        <!-- Sensor Input Form -->
+        <div class="predict-form-col">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Sensor Input Values</h2>
+                <p class="card-subtitle">All 17 shortlisted sensors are required</p>
+              </div>
+              <span class="badge badge-blue">17 sensors</span>
+            </div>
+            <form id="predictForm" autocomplete="off">
+              <div class="sensor-form-grid" id="sensorFormGrid">
+                <!-- Dynamically generated -->
+              </div>
+              <div class="form-footer">
+                <button type="submit" class="btn btn-primary btn-full" id="predictBtn">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l6 4-6 4V1zM2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Run Prediction
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Results Column -->
+        <div class="predict-results-col">
+          <!-- Placeholder before prediction -->
+          <div class="result-placeholder" id="resultPlaceholder">
+            <div class="placeholder-icon">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="26" stroke="#00d4ff22" stroke-width="2"/>
+                <circle cx="28" cy="28" r="16" stroke="#00d4ff44" stroke-width="2" stroke-dasharray="4 3"/>
+                <circle cx="28" cy="28" r="5" fill="#00d4ff33"/>
+              </svg>
+            </div>
+            <p class="placeholder-title">No Prediction Yet</p>
+            <p class="placeholder-text">Fill in sensor values and click <strong>Run Prediction</strong> to see yield outcome and SHAP explanation.</p>
+          </div>
+
+          <!-- Prediction Result (hidden until prediction made) -->
+          <div class="result-section hidden" id="resultSection">
+            <!-- Outcome Card -->
+            <div class="card outcome-card" id="outcomeCard">
+              <div class="card-header">
+                <h2 class="card-title">Prediction Outcome</h2>
+                <span class="badge" id="resultRowBadge">Row #0</span>
+              </div>
+              <div class="outcome-body">
+                <div class="gauge-wrapper">
+                  <canvas id="gaugeChart" width="220" height="220"></canvas>
+                  <div class="gauge-center">
+                    <div class="gauge-pct" id="gaugePct">—</div>
+                    <div class="gauge-label">Fail Probability</div>
+                  </div>
+                </div>
+                <div class="outcome-details">
+                  <div class="outcome-verdict" id="outcomeVerdict">
+                    <span class="verdict-icon" id="verdictIcon">—</span>
+                    <span class="verdict-text" id="verdictText">—</span>
+                  </div>
+                  <div class="outcome-meta">
+                    <div class="meta-row">
+                      <span class="meta-key">Fail Probability</span>
+                      <span class="meta-val mono" id="metaFailProb">—</span>
+                    </div>
+                    <div class="meta-row">
+                      <span class="meta-key">Prediction</span>
+                      <span class="meta-val" id="metaLabel">—</span>
+                    </div>
+                    <div class="meta-row">
+                      <span class="meta-key">Row ID</span>
+                      <span class="meta-val mono" id="metaRowId">—</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-outline btn-sm" id="explainBtn">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    Load SHAP Explanation
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SHAP Explanation Card -->
+            <div class="card hidden" id="shapCard">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">SHAP Explanation</h2>
+                  <p class="card-subtitle">Top 5 sensors driving this prediction</p>
+                </div>
+                <span class="badge badge-blue">Top 5</span>
+              </div>
+              <div class="shap-body">
+                <div class="chart-wrapper shap-chart-wrapper">
+                  <canvas id="shapBarChart"></canvas>
+                </div>
+                <div class="shap-legend">
+                  <div class="shap-legend-item">
+                    <span class="shap-dot red"></span>
+                    <span>Increases fail risk</span>
+                  </div>
+                  <div class="shap-legend-item">
+                    <span class="shap-dot blue"></span>
+                    <span>Decreases fail risk</span>
+                  </div>
+                </div>
+                <div class="shap-table-wrapper" id="shapTableWrapper"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== STABILITY EXPLORER VIEW ============== -->
+    <section class="view" id="view-stability">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Stability Explorer</h1>
+          <p class="page-subtitle">Browse, filter, and sort all 590 sensors by stability score and importance</p>
+        </div>
+        <span class="badge badge-blue" id="stabilityCount">Loading…</span>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="card filter-card">
+        <div class="filter-row">
+          <div class="search-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input type="text" class="search-input" id="sensorSearch" placeholder="Search sensor name…" />
+          </div>
+          <div class="filter-pills" role="group" aria-label="Filter sensors">
+            <button class="filter-pill active" data-filter="all" id="filterAll">All</button>
+            <button class="filter-pill" data-filter="shortlisted" id="filterShortlisted">
+              <span class="pill-dot green"></span>Shortlisted
+            </button>
+            <button class="filter-pill" data-filter="high" id="filterHigh">
+              <span class="pill-dot amber"></span>High Stability
+            </button>
+            <button class="filter-pill" data-filter="medium" id="filterMedium">
+              <span class="pill-dot teal"></span>Medium Stability
+            </button>
+            <button class="filter-pill" data-filter="zero" id="filterZero">
+              <span class="pill-dot gray"></span>Zero Stability
+            </button>
+          </div>
+          <div class="sort-wrapper">
+            <label class="sort-label" for="sortSelect">Sort by:</label>
+            <select class="sort-select" id="sortSelect">
+              <option value="stability_desc">Stability ↓</option>
+              <option value="stability_asc">Stability ↑</option>
+              <option value="importance_desc">Importance ↓</option>
+              <option value="importance_asc">Importance ↑</option>
+              <option value="sensor_asc">Sensor name A→Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-stats" id="filterStats">Showing all sensors</div>
+      </div>
+
+      <!-- Stability Table -->
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="data-table" id="stabilityTable">
+            <thead>
+              <tr>
+                <th class="sortable" data-col="sensor">Sensor <span class="sort-arrow">↕</span></th>
+                <th class="sortable" data-col="stability_score">Stability Score <span class="sort-arrow">↕</span></th>
+                <th class="sortable" data-col="avg_importance">Avg Importance <span class="sort-arrow">↕</span></th>
+                <th>Stability Tier</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="stabilityTableBody">
+              <tr><td colspan="5" class="table-loading">Loading sensor data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="tableRowCount">—</span>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Loading…</div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
