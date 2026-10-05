@@ -79,11 +79,19 @@ app.include_router(dashboard.router)
 app.include_router(sample.router)
 app.include_router(stability.router)
 
+# Mount Frontend UI static files if directory exists
+from fastapi.staticfiles import StaticFiles
+frontend_dir = settings.BASE_DIR.parent / "frontend"
+if frontend_dir.exists():
+    app.mount("/ui", StaticFiles(directory=str(frontend_dir), html=True), name="ui")
+
 @app.get("/")
 def root():
     return {
         "app": settings.APP_NAME,
         "status": "running",
         "version": settings.VERSION,
-        "docs_url": "/docs"
+        "docs_url": "/docs",
+        "ui_url": "/ui/"
     }
+

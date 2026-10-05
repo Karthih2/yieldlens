@@ -13,12 +13,7 @@ class Settings(BaseSettings):
     ARTIFACTS_DIR: Path = BASE_DIR / "artifacts" / "v1"
     DATABASE_URL: str = f"sqlite:///{BASE_DIR / 'yieldlens.db'}"
     
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
-    ]
+    CORS_ORIGINS: List[str] = ["*"]
     
     INSPECTION_CAPACITY_K: int = 30
     MAX_UPLOAD_SIZE_BYTES: int = 10 * 1024 * 1024  # 10 MB
