@@ -217,9 +217,8 @@ Contributions, issues, and feature requests are welcome!
 
 ## 👤 Author
 
-**Karthick S**
-
-**Karthikeyan S**
+* **Karthick S**
+* **Karthikeyan S**
 ---
 
 <div align="center">
